@@ -1,0 +1,42 @@
+{
+  "scenario_id": "2021-02-06-persistent-slab",
+  "date": "2021-02-06",
+  "region": "Salt Lake / Central Wasatch",
+  "title": "Feb 6, 2021 \u2014 Considerable, persistent slab",
+  "primary_problem": "persistent slab (early-season facet layer)",
+  "confidence": "high",
+  "source": "Reconstructed from the widely-published UAC accident investigation and news coverage of the Wilson Glade avalanche this day (Millcreek Canyon): 4 backcountry skiers caught and killed after remote-triggering a slope from a lower-angle bench connected to steeper terrain above \u2014 the textbook real-world case for this game's remote-trigger mechanic. Per-aspect numbers below are a reconstruction consistent with the reported Considerable rating and broad persistent-slab distribution, not a pixel-for-pixel copy of the archived forecast page (unreachable from this pipeline's network).",
+  "danger_rose": {
+    "above_treeline": {
+      "N": 3,
+      "NE": 3,
+      "E": 3,
+      "SE": 3,
+      "S": 3,
+      "SW": 3,
+      "W": 3,
+      "NW": 3
+    },
+    "near_treeline": {
+      "N": 3,
+      "NE": 3,
+      "E": 3,
+      "SE": 2,
+      "S": 2,
+      "SW": 2,
+      "W": 2,
+      "NW": 3
+    },
+    "below_treeline": {
+      "N": 2,
+      "NE": 2,
+      "E": 2,
+      "SE": 1,
+      "S": 1,
+      "SW": 1,
+      "W": 2,
+      "NW": 2
+    }
+  },
+  "notes": "Considerable danger doesn't mean 'obviously dangerous' \u2014 that's the point of this scenario. Low-angle, innocuous-looking terrain connected to steeper slopes above was enough."
+}

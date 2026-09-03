@@ -1,0 +1,20 @@
+[
+  {
+    "scenario_id": "2021-02-06-persistent-slab",
+    "date": "2021-02-06",
+    "title": "Feb 6, 2021 \u2014 Considerable, persistent slab",
+    "confidence": "high"
+  },
+  {
+    "scenario_id": "2023-02-07-wind-loaded-south",
+    "date": "2023-02-07",
+    "title": "Feb 7, 2023 \u2014 wind-loaded south aspects",
+    "confidence": "illustrative"
+  },
+  {
+    "scenario_id": "baseline-favorable",
+    "date": null,
+    "title": "Composite favorable day \u2014 Moderate",
+    "confidence": "synthetic-baseline"
+  }
+]

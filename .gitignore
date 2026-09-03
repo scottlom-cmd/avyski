@@ -1,0 +1,8 @@
+node_modules/
+dist/
+data-pipeline/venv/
+data-pipeline/__pycache__/
+data-pipeline/**/__pycache__/
+*.pyc
+.DS_Store
+data-pipeline/scratch/

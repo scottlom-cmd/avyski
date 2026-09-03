@@ -1,0 +1,42 @@
+{
+  "scenario_id": "2023-02-07-wind-loaded-south",
+  "date": "2023-02-07",
+  "region": "Salt Lake / Little Cottonwood Canyon",
+  "title": "Feb 7, 2023 \u2014 wind-loaded south aspects",
+  "primary_problem": "wind slab",
+  "confidence": "illustrative",
+  "source": "Based on a real UAC field observation referenced by the project owner describing wind-loading concentrated on south-facing terrain this day. Exact per-aspect/elevation numbers weren't verifiable against the archived forecast from this environment (avalanche.org unreachable) - treat this scenario's ratings as representative of that wind-loading pattern, not an archival-accuracy copy.",
+  "danger_rose": {
+    "above_treeline": {
+      "N": 2,
+      "NE": 2,
+      "E": 2,
+      "SE": 3,
+      "S": 4,
+      "SW": 4,
+      "W": 3,
+      "NW": 2
+    },
+    "near_treeline": {
+      "N": 2,
+      "NE": 2,
+      "E": 2,
+      "SE": 3,
+      "S": 3,
+      "SW": 3,
+      "W": 2,
+      "NW": 2
+    },
+    "below_treeline": {
+      "N": 1,
+      "NE": 1,
+      "E": 1,
+      "SE": 2,
+      "S": 2,
+      "SW": 2,
+      "W": 1,
+      "NW": 1
+    }
+  },
+  "notes": "Good scenario for teaching aspect-hopping: the same run can cross from High danger to Moderate danger just by favoring shaded aspects over the wind-loaded south-facing ones."
+}
