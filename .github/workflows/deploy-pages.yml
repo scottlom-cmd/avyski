@@ -9,7 +9,6 @@ permissions:
   contents: read
   pages: write
   id-token: write
-  administration: write # needed for configure-pages' enablement:true to create the Pages site on its first run
 
 concurrency:
   group: pages
