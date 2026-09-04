@@ -9,6 +9,7 @@ import {
   renderSkinningPanel, renderSkiingPanel, setRiskVignette,
   renderDebrief, hideDebrief,
 } from './ui.js';
+import { dataUrl } from './dataUrl.js';
 
 const ASPECT_LABELS = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
 function aspectLabel(deg) {
@@ -138,7 +139,7 @@ animate();
 async function boot() {
   const [zones, scenarioIndex] = await Promise.all([
     loadZoneIndex(),
-    fetch('/data/forecasts/index.json').then((r) => r.json()),
+    fetch(dataUrl('data/forecasts/index.json')).then((r) => r.json()),
   ]);
   renderMenu(menuEl, { zones, scenarios: scenarioIndex }, (zoneId, scenarioId) => startRun(zoneId, scenarioId));
 }
@@ -149,7 +150,7 @@ async function startRun(zoneId, scenarioId) {
 
   [zoneData, scenario] = await Promise.all([
     loadZone(zoneId),
-    fetch(`/data/forecasts/${scenarioId}.json`).then((r) => r.json()),
+    fetch(dataUrl(`data/forecasts/${scenarioId}.json`)).then((r) => r.json()),
   ]);
 
   clearScene();
@@ -250,7 +251,7 @@ async function backToMenu() {
   riskVignetteEl.style.opacity = '0';
   const [zones, scenarioIndex] = await Promise.all([
     loadZoneIndex(),
-    fetch('/data/forecasts/index.json').then((r) => r.json()),
+    fetch(dataUrl('data/forecasts/index.json')).then((r) => r.json()),
   ]);
   menuEl.classList.remove('hidden');
   renderMenu(menuEl, { zones, scenarios: scenarioIndex }, (zoneId, scenarioId) => startRun(zoneId, scenarioId));

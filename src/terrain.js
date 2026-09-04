@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { dataUrl } from './dataUrl.js';
 
 // Elevation-band color ramp for the base terrain look. Rough approximation
 // of real Wasatch ground cover at these elevations, not a satellite texture.
@@ -23,7 +24,7 @@ function elevationColor(t) {
 }
 
 export async function loadZone(zoneId) {
-  const res = await fetch(`/data/zones/${zoneId}/terrain.json`);
+  const res = await fetch(dataUrl(`data/zones/${zoneId}/terrain.json`));
   if (!res.ok) throw new Error(`Failed to load zone '${zoneId}': HTTP ${res.status}`);
   return res.json();
 }
