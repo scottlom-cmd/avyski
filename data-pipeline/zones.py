@@ -42,20 +42,26 @@ ZONES = {
     },
     "wolverine_cirque": {
         "name": "Wolverine Cirque",
-        "center_lat": 40.5875,
-        "center_lon": -111.6280,
+        # Corrected 2026-09-04: the original placement (upper Days Fork) was
+        # a guess and was wrong - a player familiar with the real terrain
+        # flagged it immediately. Re-sourced via web search instead of
+        # memory: Mount Wolverine's summit is a LIDAR-surveyed point
+        # (Peakbagger), 10,795-10,800ft, between Alta and Brighton; the
+        # cirque itself is the bowl right off that summit, accessed via
+        # Grizzly Gulch from Alta to Twin Lakes Pass.
+        "center_lat": 40.5851,
+        "center_lon": -111.6011,
         "radius_m": 900,
         "utm_epsg": 32612,
         "cell_size_m": 10,
-        "trailhead": {"lat": 40.5989, "lon": -111.6437, "name": "Days Fork TH, BCC"},
+        "trailhead": {"lat": 40.5921, "lon": -111.6280, "name": "Grizzly Gulch TH, Alta (8770ft)"},
         "elevation_bands_ft": {"below_treeline_max": 8700, "near_treeline_max": 9500},
         "reference": {
-            # Coordinates for this zone are a best estimate (upper Days Fork /
-            "summit_elevation_ft": None,
-            "note": "Coordinates are an approximate placement of the cirque in the upper "
-                    "Days Fork drainage, not a surveyed pin — treat reference elevation "
-                    "as whatever the real DEM returns, and confirm against a map before "
-                    "treating this zone's summit stats as load-bearing the way mt_superior's are.",
+            "summit_elevation_ft": 10795,
+            "summit_lat": 40.5851,
+            "summit_lon": -111.6011,
+            "note": "Mount Wolverine, between Alta and Brighton - over 25 chutes ring the "
+                    "cirque below it, moderate open couloirs to tight 50deg+ rock-strewn lines.",
         },
         "manual_traps": [],
     },

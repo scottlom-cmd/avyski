@@ -1,4 +1,4 @@
-const RATING_COLORS = {
+export const RATING_COLORS = {
   1: '#6bbf59', // Low
   2: '#ffeb3b', // Moderate
   3: '#ff9800', // Considerable

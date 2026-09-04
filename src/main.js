@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { loadZone, loadZoneIndex, buildTerrain } from './terrain.js';
+import { loadZone, loadZoneIndex, buildTerrain, computeHazardColors, setTerrainColorMode } from './terrain.js';
+import { buildContours, buildReferenceLabels } from './terrainOverlay.js';
 import { buildHazardModel } from './hazard.js';
 import { SkinTrack } from './skintrack.js';
 import { Skier } from './skier.js';
@@ -22,6 +23,7 @@ const hudEl = document.getElementById('hud');
 const modePanelEl = document.getElementById('mode-panel');
 const riskVignetteEl = document.getElementById('risk-vignette');
 const debriefEl = document.getElementById('debrief');
+const overlayToggleEl = document.getElementById('overlay-toggle');
 
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -61,6 +63,10 @@ let scenario = null;
 let grid = null;
 let hazardModel = null;
 let terrainMesh = null;
+let contourGroup = null;
+let labelGroup = null;
+let hazardColors = null;
+let overlayMode = 'natural'; // 'natural' | 'hazard'
 let skinTrack = null;
 let skier = null;
 
@@ -76,8 +82,23 @@ window.addEventListener('resize', () => {
 });
 
 const MOVEMENT_KEYS = new Set(['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'KeyA', 'KeyD', 'KeyW', 'KeyS']);
-window.addEventListener('keydown', (e) => { if (MOVEMENT_KEYS.has(e.code)) e.preventDefault(); setInput(e.code, true); });
+window.addEventListener('keydown', (e) => {
+  if (MOVEMENT_KEYS.has(e.code)) e.preventDefault();
+  if (e.code === 'Escape' && mode === 'skinning' && skinTrack.length > 0) {
+    skinTrack.clear();
+    refreshSkinningPanel();
+    return;
+  }
+  setInput(e.code, true);
+});
 window.addEventListener('keyup', (e) => setInput(e.code, false));
+
+overlayToggleEl.addEventListener('click', () => {
+  overlayMode = overlayMode === 'natural' ? 'hazard' : 'natural';
+  setTerrainColorMode(terrainMesh, overlayMode, hazardColors);
+  overlayToggleEl.textContent = `Hazard overlay: ${overlayMode === 'hazard' ? 'on' : 'off'}`;
+  overlayToggleEl.classList.toggle('active', overlayMode === 'hazard');
+});
 function setInput(code, value) {
   if (code === 'ArrowLeft' || code === 'KeyA') input.left = value;
   if (code === 'ArrowRight' || code === 'KeyD') input.right = value;
@@ -160,7 +181,18 @@ async function startRun(zoneId, scenarioId) {
   grid = built.grid;
   scene.add(terrainMesh);
 
+  contourGroup = buildContours(zoneData, grid);
+  scene.add(contourGroup);
+  labelGroup = buildReferenceLabels(zoneData, grid);
+  scene.add(labelGroup);
+
   hazardModel = buildHazardModel(zoneData, scenario);
+  hazardColors = computeHazardColors(grid, hazardModel);
+  overlayMode = 'natural';
+  setTerrainColorMode(terrainMesh, overlayMode, hazardColors);
+  overlayToggleEl.hidden = false;
+  overlayToggleEl.textContent = 'Hazard overlay: off';
+  overlayToggleEl.classList.remove('active');
 
   const span = Math.max(grid.width, grid.height) * grid.cellSize;
   camera.position.set(0, span * 0.55, span * 0.6);
@@ -179,10 +211,12 @@ async function startRun(zoneId, scenarioId) {
 }
 
 function clearScene() {
-  for (const child of [terrainMesh, skinTrack?.group].filter(Boolean)) {
+  for (const child of [terrainMesh, contourGroup, labelGroup, skinTrack?.group].filter(Boolean)) {
     scene.remove(child);
   }
   terrainMesh = null;
+  contourGroup = null;
+  labelGroup = null;
   skinTrack = null;
 }
 
@@ -249,6 +283,7 @@ async function backToMenu() {
   mode = 'menu';
   modePanelEl.innerHTML = '';
   riskVignetteEl.style.opacity = '0';
+  overlayToggleEl.hidden = true;
   const [zones, scenarioIndex] = await Promise.all([
     loadZoneIndex(),
     fetch(dataUrl('data/forecasts/index.json')).then((r) => r.json()),

@@ -54,6 +54,7 @@ export class SkinTrack {
 
   clear() {
     this.waypoints = [];
+    this._clearPreview();
     this._rebuild();
   }
 

@@ -239,6 +239,26 @@ html, body {
   color: #ccd4dd;
 }
 
+#overlay-toggle {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(18, 24, 31, 0.88);
+  border: 1px solid #263141;
+  color: #ccd4dd;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+#overlay-toggle.active {
+  border-color: #5b9bd5;
+  color: #8fd3ff;
+  background: #1c2b3a;
+}
+
 #risk-vignette {
   position: absolute;
   inset: 0;

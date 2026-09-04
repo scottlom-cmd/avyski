@@ -56,6 +56,20 @@ def reproject_to_grid(dem_window, center_lat, center_lon, radius_m, cell_size_m,
     return dst.astype(np.float64), dst_transform, grid_info
 
 
+def latlon_to_grid_rc(lat, lon, grid_info, utm_epsg):
+    """Projects a real-world lat/lon (e.g. a named summit or trailhead) into
+    fractional (row, col) on the same grid reproject_to_grid() built, so the
+    renderer can place a reference-point label without doing its own
+    lat/lon -> UTM projection in the browser.
+    """
+    to_utm = Transformer.from_crs("EPSG:4326", f"EPSG:{utm_epsg}", always_xy=True)
+    x, y = to_utm.transform(lon, lat)
+    col = (x - grid_info["origin_x"]) / grid_info["cell_size_m"]
+    row = (grid_info["origin_y"] - y) / grid_info["cell_size_m"]
+    in_bounds = 0 <= row <= grid_info["n"] - 1 and 0 <= col <= grid_info["n"] - 1
+    return {"row": row, "col": col, "in_bounds": in_bounds}
+
+
 def slope_aspect_horn(elevation, cell_size_m):
     """Horn's algorithm (the standard 3x3-kernel method used by ArcGIS/QGIS
     `gdaldem slope|aspect`). Edge cells are handled by replicating the

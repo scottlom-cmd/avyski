@@ -26,6 +26,7 @@ from terrain_processing import (
     slope_aspect_horn,
     detect_curvature_traps,
     apply_manual_traps,
+    latlon_to_grid_rc,
 )
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -57,6 +58,24 @@ def build_zone(zone_id, source_module=usgs_3dep):
 
     sanity_check(zone, elevation, slope_deg, grid_info)
 
+    # Reference points (summit, trailhead) baked into grid row/col here so
+    # the renderer can place labels without redoing lat/lon -> UTM
+    # projection client-side. These are the "where am I" anchors the
+    # terrain badly needed - a player can't orient off a bare heightmap.
+    reference_points = []
+    ref = zone.get("reference") or {}
+    if ref.get("summit_lat") is not None:
+        rc = latlon_to_grid_rc(ref["summit_lat"], ref["summit_lon"], grid_info, zone["utm_epsg"])
+        reference_points.append({"label": "Summit", **rc})
+    trailhead = zone.get("trailhead")
+    if trailhead:
+        rc = latlon_to_grid_rc(trailhead["lat"], trailhead["lon"], grid_info, zone["utm_epsg"])
+        reference_points.append({"label": trailhead["name"], **rc})
+    for trap in zone.get("manual_traps", []):
+        if trap.get("label"):
+            rc = latlon_to_grid_rc(trap["lat"], trap["lon"], grid_info, zone["utm_epsg"])
+            reference_points.append({"label": trap["label"], **rc})
+
     payload = {
         "zone_id": zone_id,
         "name": zone["name"],
@@ -77,6 +96,7 @@ def build_zone(zone_id, source_module=usgs_3dep):
         "trailhead": zone.get("trailhead"),
         "elevation_bands_ft": zone.get("elevation_bands_ft"),
         "reference": zone.get("reference"),
+        "reference_points": reference_points,
         # Flat, row-major (north -> south, west -> east) arrays, quantized
         # to int16 to keep this a fast browser fetch. elevation/slope are
         # whole units (meters / degrees) - plenty of precision for gameplay.

@@ -1,5 +1,10 @@
 import * as THREE from 'three';
 import { dataUrl } from './dataUrl.js';
+import { RATING_COLORS } from './ui.js';
+
+const RATING_COLOR_OBJS = Object.fromEntries(
+  Object.entries(RATING_COLORS).map(([k, hex]) => [k, new THREE.Color(hex)])
+);
 
 // Elevation-band color ramp for the base terrain look. Rough approximation
 // of real Wasatch ground cover at these elevations, not a satellite texture.
@@ -124,6 +129,7 @@ export function buildTerrain(zoneData) {
   const mesh = new THREE.Mesh(geometry, material);
   mesh.castShadow = false;
   mesh.receiveShadow = true;
+  mesh.userData.naturalColors = colors.slice(); // kept so the hazard overlay toggle can restore it
 
   const grid = {
     width,
@@ -153,4 +159,43 @@ export function buildTerrain(zoneData) {
   };
 
   return { mesh, grid };
+}
+
+const HAZARD_OVERLAY_BASE = new THREE.Color(0xd8d4c4); // neutral parchment, not "safe green"
+const HAZARD_OVERLAY_MIN_BLEND = 0.12; // flat ground still hints at the aspect's rating, faintly
+
+/**
+ * Colors every cell by actual computed risk there - the forecast rating
+ * for that aspect/band, but weighted by the same slope (and remote-reach)
+ * factors the hazard model uses to decide real exposure. A flat ridge on
+ * a "Considerable" aspect stays close to neutral, because it genuinely is
+ * safer to cross - showing raw forecast rating regardless of slope would
+ * paint that ridge alarming-orange and defeat the ridge/pocket lesson the
+ * game is trying to teach. Opt-in overlay (see the toggle button), not the
+ * default view - players still have to learn to read the bare terrain.
+ */
+export function computeHazardColors(grid, hazardModel) {
+  const { width, height } = grid;
+  const colors = new Float32Array(width * height * 3);
+  const blended = new THREE.Color();
+  for (let row = 0; row < height; row++) {
+    for (let col = 0; col < width; col++) {
+      const i = row * width + col;
+      const r = hazardModel.rateAt(row, col);
+      const ratingColor = RATING_COLOR_OBJS[r ? r.rating : 1] ?? RATING_COLOR_OBJS[1];
+      const blend = r ? HAZARD_OVERLAY_MIN_BLEND + (1 - HAZARD_OVERLAY_MIN_BLEND) * r.riskGauge : 0;
+      blended.copy(HAZARD_OVERLAY_BASE).lerp(ratingColor, blend);
+      colors[i * 3 + 0] = blended.r;
+      colors[i * 3 + 1] = blended.g;
+      colors[i * 3 + 2] = blended.b;
+    }
+  }
+  return colors;
+}
+
+export function setTerrainColorMode(mesh, mode, hazardColors) {
+  const attr = mesh.geometry.attributes.color;
+  const source = mode === 'hazard' ? hazardColors : mesh.userData.naturalColors;
+  attr.array.set(source);
+  attr.needsUpdate = true;
 }
