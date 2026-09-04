@@ -238,21 +238,63 @@ function dropIn() {
   renderSkiingPanel(modePanelEl);
 }
 
+const CAM_BACK = 70;
+const CAM_BASE_HEIGHT = 55;
+const CAM_LOOKAHEAD = 40;
+const CAM_CLEARANCE = 14; // min world units the line of sight must clear terrain by
+const CAM_SIGHTLINE_SAMPLES = 4;
+let cameraY = null; // smoothed - avoids snapping every frame as required clearance changes
+
+/**
+ * A fixed behind-and-above chase offset gets hidden by the terrain itself
+ * on real DEM terrain: cresting a rollover puts higher ground directly
+ * between the camera and the skier, hiding the skier exactly when you
+ * most need to see where you're going (playtester-reported bug). This
+ * samples points along the camera->skier sightline and raises the camera
+ * enough to clear the terrain at each one, rather than only checking the
+ * camera's own footprint.
+ */
+function computeChaseCameraY(camX, camZ, skierEyeY) {
+  let requiredY = skier.worldY + CAM_BASE_HEIGHT;
+  for (let i = 1; i < CAM_SIGHTLINE_SAMPLES; i++) {
+    const t = i / CAM_SIGHTLINE_SAMPLES;
+    const sx = camX + (skier.worldX - camX) * t;
+    const sz = camZ + (skier.worldZ - camZ) * t;
+    const g = grid.worldToGrid(sx, sz);
+    const terrainY = grid.gridToWorldY(g.row, g.col);
+    if (terrainY === null) continue;
+    // Camera height such that the camera->skier-eye line clears this
+    // sample point's terrain height by CAM_CLEARANCE at parameter t.
+    const neededY = (terrainY + CAM_CLEARANCE - skierEyeY * t) / (1 - t);
+    requiredY = Math.max(requiredY, neededY);
+  }
+  return requiredY;
+}
+
 function stepSkiing(dt) {
   const status = skier.update(dt, input, hazardModel);
 
-  skierMesh.position.set(skier.worldX, skier.worldY + 6, skier.worldZ);
+  const skierEyeY = skier.worldY + 6;
+  skierMesh.position.set(skier.worldX, skierEyeY, skier.worldZ);
   skierMesh.rotation.y = -skier.headingRad;
 
   const forward = { x: Math.sin(skier.headingRad), z: -Math.cos(skier.headingRad) };
-  const camBack = 90;
-  const camHeight = 45;
-  camera.position.set(
-    skier.worldX - forward.x * camBack,
-    skier.worldY + camHeight,
-    skier.worldZ - forward.z * camBack
+  const camX = skier.worldX - forward.x * CAM_BACK;
+  const camZ = skier.worldZ - forward.z * CAM_BACK;
+  const targetCamY = computeChaseCameraY(camX, camZ, skierEyeY);
+  cameraY = cameraY === null ? targetCamY : cameraY + (targetCamY - cameraY) * Math.min(1, dt * 8);
+  // If the required height just increased (about to clip on a rollover),
+  // jump straight to it - only easing the *decrease*, once terrain relaxes
+  // and it's safe to settle back down, keeps the camera smooth without
+  // ever dipping below what's needed to stay clear this frame.
+  cameraY = Math.max(cameraY, targetCamY);
+
+  camera.position.set(camX, cameraY, camZ);
+  camera.lookAt(
+    skier.worldX + forward.x * CAM_LOOKAHEAD,
+    skierEyeY + 6,
+    skier.worldZ + forward.z * CAM_LOOKAHEAD
   );
-  camera.lookAt(skier.worldX + forward.x * 40, skier.worldY + 10, skier.worldZ + forward.z * 40);
 
   setRiskVignette(riskVignetteEl, skier.currentRiskGauge(hazardModel));
   setHUDFromCell(skier.row, skier.col, skier.speed);
