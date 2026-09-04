@@ -75,6 +75,7 @@ def build_zone(zone_id, source_module=usgs_3dep):
             "utm_center_y": round(grid_info["center_y"], 2),
         },
         "trailhead": zone.get("trailhead"),
+        "elevation_bands_ft": zone.get("elevation_bands_ft"),
         "reference": zone.get("reference"),
         # Flat, row-major (north -> south, west -> east) arrays, quantized
         # to int16 to keep this a fast browser fetch. elevation/slope are

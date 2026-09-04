@@ -21,6 +21,10 @@ ZONES = {
         "utm_epsg": 32612,  # UTM zone 12N
         "cell_size_m": 10,
         "trailhead": {"lat": 40.5657, "lon": -111.6172, "name": "Cardiff Fork / S-curve, LCC"},
+        # Real Wasatch treeline bands, used to look up the UAC danger rose
+        # (which is published per elevation band, not per raw elevation).
+        # Typical published Central Wasatch cutoffs - not surveyed per zone.
+        "elevation_bands_ft": {"below_treeline_max": 8700, "near_treeline_max": 9500},
         "reference": {
             "summit_elevation_ft": 11132,
             "summit_lat": 40.5721,
@@ -44,6 +48,7 @@ ZONES = {
         "utm_epsg": 32612,
         "cell_size_m": 10,
         "trailhead": {"lat": 40.5989, "lon": -111.6437, "name": "Days Fork TH, BCC"},
+        "elevation_bands_ft": {"below_treeline_max": 8700, "near_treeline_max": 9500},
         "reference": {
             # Coordinates for this zone are a best estimate (upper Days Fork /
             "summit_elevation_ft": None,

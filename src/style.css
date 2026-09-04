@@ -179,3 +179,134 @@ html, body {
   opacity: 0.7;
   margin-top: 4px;
 }
+
+#mode-panel {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  background: rgba(18, 24, 31, 0.88);
+  border: 1px solid #263141;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 12px;
+  max-width: 280px;
+}
+
+#mode-panel .mode-title {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+#mode-panel .mode-hint {
+  opacity: 0.65;
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+#mode-panel .segment-readout {
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+#mode-panel .segment-readout.risky {
+  color: #ff8866;
+}
+
+#mode-panel button {
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: none;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-right: 6px;
+}
+
+#mode-panel .btn-primary {
+  background: #3a7bd5;
+  color: white;
+}
+
+#mode-panel .btn-primary:disabled {
+  background: #26303c;
+  color: #667;
+  cursor: not-allowed;
+}
+
+#mode-panel .btn-secondary {
+  background: #26303c;
+  color: #ccd4dd;
+}
+
+#risk-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  background: radial-gradient(ellipse at center, rgba(0,0,0,0) 45%, rgba(180,30,20,0.55) 100%);
+}
+
+#debrief {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(6, 9, 12, 0.94);
+}
+
+#debrief.visible {
+  display: flex;
+}
+
+.debrief-panel {
+  width: min(560px, 90vw);
+  background: #12181f;
+  border: 1px solid #263141;
+  border-radius: 10px;
+  padding: 30px 34px;
+  text-align: center;
+}
+
+.debrief-panel h1 {
+  font-size: 24px;
+  margin-bottom: 6px;
+}
+
+.debrief-panel.triggered h1 { color: #ff5b4a; }
+.debrief-panel.clean h1 { color: #6bbf59; }
+
+.debrief-panel .debrief-sub {
+  opacity: 0.75;
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+
+.debrief-panel .debrief-stats {
+  text-align: left;
+  background: #182129;
+  border-radius: 8px;
+  padding: 14px 18px;
+  font-size: 13px;
+  line-height: 1.9;
+  margin-bottom: 20px;
+}
+
+.debrief-panel .debrief-stats .stat-label {
+  opacity: 0.6;
+  display: inline-block;
+  min-width: 150px;
+}
+
+.debrief-panel button {
+  padding: 12px 20px;
+  border-radius: 8px;
+  border: none;
+  background: #3a7bd5;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}

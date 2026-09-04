@@ -124,11 +124,115 @@ export function renderMenu(container, { zones, scenarios }, onStart) {
   render();
 }
 
+export function renderSkinningPanel(container, { waypointCount, gainM, preview }, handlers) {
+  container.innerHTML = '';
+  const box = document.createElement('div');
+  box.innerHTML = `
+    <div class="mode-title">Setting skin track</div>
+    <div class="mode-hint">Click terrain to lay a waypoint. Switchbacks are fine — click anywhere,
+    the track doesn't need to be a straight line. Segments over ${26}&deg; are flagged: efficient
+    skinning avoids them.</div>
+  `;
+  if (preview) {
+    const readout = document.createElement('div');
+    readout.className = 'segment-readout' + (preview.risky ? ' risky' : '');
+    readout.textContent = `Segment: ${preview.slopeDeg.toFixed(0)}°${preview.risky ? '  — steep for a skin track' : ''}`;
+    box.appendChild(readout);
+  }
+  const stats = document.createElement('div');
+  stats.className = 'segment-readout';
+  stats.textContent = `${waypointCount} waypoint${waypointCount === 1 ? '' : 's'} · ${Math.round(gainM)}m gain`;
+  box.appendChild(stats);
+
+  const undoBtn = document.createElement('button');
+  undoBtn.className = 'btn-secondary';
+  undoBtn.textContent = 'Undo';
+  undoBtn.disabled = waypointCount === 0;
+  undoBtn.onclick = handlers.onUndo;
+
+  const clearBtn = document.createElement('button');
+  clearBtn.className = 'btn-secondary';
+  clearBtn.textContent = 'Clear';
+  clearBtn.disabled = waypointCount === 0;
+  clearBtn.onclick = handlers.onClear;
+
+  const dropInBtn = document.createElement('button');
+  dropInBtn.className = 'btn-primary';
+  dropInBtn.textContent = 'Drop In';
+  dropInBtn.disabled = waypointCount < 2;
+  dropInBtn.onclick = handlers.onDropIn;
+
+  box.appendChild(undoBtn);
+  box.appendChild(clearBtn);
+  box.appendChild(dropInBtn);
+  container.appendChild(box);
+}
+
+export function renderSkiingPanel(container) {
+  container.innerHTML = `
+    <div class="mode-title">Skiing</div>
+    <div class="mode-hint">Arrow keys: &larr;/&rarr; steer, &uarr; tuck (faster, less drag), &darr; brake.
+    Speed trades against control — the faster you're going, the more you're committed to a line.</div>
+  `;
+}
+
+export function setRiskVignette(el, gauge) {
+  el.style.opacity = String(Math.max(0, Math.min(0.85, gauge * 0.85)));
+}
+
+export function renderDebrief(container, result, onRestart) {
+  container.innerHTML = '';
+  container.classList.add('visible');
+
+  const panel = document.createElement('div');
+
+  if (result.type === 'triggered') {
+    panel.className = 'debrief-panel triggered';
+    const mech = result.mechanism === 'remote'
+      ? 'Remote-triggered — the slope you were on wasn’t the one that released. Your weight loaded terrain connected to a much more loaded slope nearby, and it propagated back to you.'
+      : 'Direct trigger — the slope under your skis released.';
+    panel.innerHTML = `
+      <h1>Triggered</h1>
+      <div class="debrief-sub">${mech}</div>
+      <div class="debrief-stats">
+        <div><span class="stat-label">Elevation band</span>${result.band?.replace('_', ' ') ?? '—'}</div>
+        <div><span class="stat-label">Aspect</span>${result.aspectLabel ?? '—'}</div>
+        <div><span class="stat-label">Slope angle</span>${result.slope_deg != null ? Math.round(result.slope_deg) + '°' : '—'}</div>
+        <div><span class="stat-label">Forecast rating there</span>${result.rating != null ? ratingName(result.rating) : '—'}</div>
+        <div><span class="stat-label">Terrain trap</span>${result.trapSeverity > 0 ? 'Yes — confined, limited escape' : 'No'}</div>
+      </div>
+    `;
+  } else {
+    panel.className = 'debrief-panel clean';
+    const aspectList = [...result.aspectsCrossed].map((s) => s.replace('|', ' ').replace('_', ' ')).join(', ') || 'none steep enough to count';
+    panel.innerHTML = `
+      <h1>Clean descent</h1>
+      <div class="debrief-sub">You skied out.</div>
+      <div class="debrief-stats">
+        <div><span class="stat-label">Distance skied</span>${Math.round(result.distanceSkied)}m</div>
+        <div><span class="stat-label">Aspects/bands crossed</span>${aspectList}</div>
+        <div><span class="stat-label">Highest rating exposed to</span>${result.maxRatingEncountered ? ratingName(result.maxRatingEncountered) : 'Low'}</div>
+      </div>
+    `;
+  }
+
+  const btn = document.createElement('button');
+  btn.textContent = 'Back to menu';
+  btn.onclick = onRestart;
+  panel.appendChild(btn);
+  container.appendChild(panel);
+}
+
+export function hideDebrief(container) {
+  container.classList.remove('visible');
+}
+
 export function renderHUD(container, state) {
   container.innerHTML = `
     <div class="hud-row"><span class="hud-label">Zone</span><span>${state.zoneName}</span></div>
     <div class="hud-row"><span class="hud-label">Elevation</span><span>${state.elevationFt} ft</span></div>
     <div class="hud-row"><span class="hud-label">Slope</span><span>${state.slopeDeg}°</span></div>
     <div class="hud-row"><span class="hud-label">Aspect</span><span>${state.aspectLabel}</span></div>
+    ${state.speedText ? `<div class="hud-row"><span class="hud-label">Speed</span><span>${state.speedText}</span></div>` : ''}
   `;
 }
